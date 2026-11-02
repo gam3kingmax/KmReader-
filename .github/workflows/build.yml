@@ -27,7 +27,7 @@ jobs:
             flutter create --project-name km_reader --org com.km --platforms android .
           fi
 
-      - name: Set compileSdk to 37
+      - name: Set compileSdk to 37 for app
         run: |
           for f in android/app/build.gradle.kts android/app/build.gradle; do
             if [ -f "$f" ]; then
@@ -35,6 +35,19 @@ jobs:
               grep -n "compileSdk" "$f"
             fi
           done
+
+      - name: Force compileSdk 37 for all plugins
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/force-sdk.gradle << 'EOF'
+          allprojects {
+            afterEvaluate { p ->
+              if (p.hasProperty('android')) {
+                p.android.compileSdkVersion 37
+              }
+            }
+          }
+          EOF
 
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos || true
