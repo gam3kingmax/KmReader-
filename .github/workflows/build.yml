@@ -27,6 +27,15 @@ jobs:
             flutter create --project-name km_reader --org com.km --platforms android .
           fi
 
+      - name: Set compileSdk to 37
+        run: |
+          for f in android/app/build.gradle.kts android/app/build.gradle; do
+            if [ -f "$f" ]; then
+              sed -i -E 's/compileSdk(Version)?[ =]+.*/compileSdk = 37/' "$f"
+              grep -n "compileSdk" "$f"
+            fi
+          done
+
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos || true
       - run: flutter build apk --release
